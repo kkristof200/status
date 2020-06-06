@@ -6,19 +6,36 @@ if [ "$MAIN_GITHUB_FOLDER_PATH" == "" ]; then
 fi
 
 cd $MAIN_GITHUB_FOLDER_PATH
+summary_to_push=""
+summary_to_pull=""
+summary_both=""
 
 for d in */ ; do
-    cd $MAIN_GITHUB_FOLDER_PATH/$d
+    path=$MAIN_GITHUB_FOLDER_PATH/$d
+    cd $path
     res=$(git status)
 
     if [[ $res != *"nothing to commit"* ]] || [[ $res != *"branch is up to date with"* ]]; then
         echo -e "\n\n----------------------------------------------------------------\n"
         echo -e "Proj: "$d
-        echo -e "Path: "$(pwd)"\n"
+        echo -e "Path: $path\n"
 
         git status
 
         echo -e "\n----------------------------------------------------------------\n\n"
+
+        if [[ $res != *"nothing to commit"* ]]; then
+            summary_to_push="$summary_to_push\n$d"
+        fi
+
+        if [[ $res != *"branch is up to date with"* ]]; then
+            summary_to_pull="$summary_to_pull\n$d"
+        fi
+
+        if [[ $res != *"nothing to commit"* ]] && [[ $res != *"branch is up to date with"* ]]; then
+            summary_both="$summary_both\n$d"
+        fi
     fi
 done
 
+echo -e "\nSummary:\n\nTo pull:$summary_to_pull\n\nTo push:$summary_to_push\n\nBoth:$summary_both"
